@@ -11,15 +11,15 @@ let
   };
   typhon = import typhonGit {};
 
-  callPackage = pkgs.newScope self;
-  self = rec {
+  # callPackage = pkgs.newScope self;
+  ps = self: {
     inherit lib;
 
     makeMontePackage = src: let
       typhonVm = typhon.typhonVm;
       mast = typhon.mast;
 
-      json = builtins.fromJSON (builtins.readFile "${src}/mt.json");
+      json = lib.importJSON "${src}/mt.json";
       name = json.name;
       paths = json.paths;
       hasEntrypoint = json ? entrypoint;
@@ -105,34 +105,34 @@ let
         '' else "");
     };
 
-    mtFromGitHub = s: makeMontePackage (pkgs.fetchFromGitHub s);
+    mtFromGitHub = s: self.makeMontePackage (pkgs.fetchFromGitHub s);
 
-    airbrus = mtFromGitHub {
+    airbrus = self.mtFromGitHub {
       owner = "MostAwesomeDude";
       repo = "airbrus";
       rev = "6e9bcee";
       sha256 = "1r1p03r66zxf59c5q7w6rrpll819vk7hz9sn40v0k8hnmvyip1w8";
     };
 
-    IRC = mtFromGitHub {
+    IRC = self.mtFromGitHub {
       owner = "monte-language";
       repo = "mt-irc";
       rev = "3657b6e";
       sha256 = "1gy7fh237s8lfpy582q9ijgark9ybrb0ljwx38cknr13y0k2yj3r";
     };
 
-    loopingCall = mtFromGitHub {
+    loopingCall = self.mtFromGitHub {
       owner = "monte-language";
       repo = "mt-loopingCall";
       rev = "2c362d6";
       sha256 = "142rg4r12z96mvpv4yimwz82ggvfym0lf315wrg44k280mrwp2bz";
     };
 
-    tokenBucket = mtFromGitHub {
+    tokenBucket = self.mtFromGitHub {
       owner = "monte-language";
       repo = "mt-tokenBucket";
       rev = "d286a6c";
       sha256 = "05c07fyn9zqj8gm9jacpzjmmfzvjhs582jplcapds85r4hcv41zl";
     };
   };
-in self
+in lib.fix ps
